@@ -87,9 +87,8 @@ Product.updateById = (id, product, result) => {
 //get top product
 Product.getTop = result => {
     sql.query(" SELECT Products.*, COUNT(1) as nums \
-                FROM Orders, Products \
+                FROM Orders INNER JOIN Products ON Orders.productId = Products.id\
                 WHERE curdate() = Orders.date \
-                AND Orders.productId = Products.id \
                 GROUP BY productId \
                 ORDER BY nums DESC \
                 LIMIT 5", (err, res) => {
@@ -105,11 +104,10 @@ Product.getTop = result => {
 
 
 Product.revenue = result => {
-    sql.query(" SELECT O.date as date, COUNT(1) as nums, SUM(P.price) as revenue \
-                FROM Orders as O, Products as P \
-                WHERE O.productId = P.id \
-                GROUP BY O.date \
-                ORDER BY O.date DESC", (err, res) => {
+    sql.query(" SELECT Orders.date as date, COUNT(1) as nums, SUM(Products.price) as revenue \
+                FROM Orders INNER JOIN Products ON  Orders.productId = Products.id\
+                GROUP BY Orders.date \
+                ORDER BY Orders.date DESC", (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(null, err);
